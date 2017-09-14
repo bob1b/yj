@@ -55,6 +55,7 @@ pyparted==3.10.7
 pyserial==3.0.1
 pysmbc==1.0.15.5
 pysqlite==1.0.1
+python==2.7.12
 python-apt==1.1.0b1
 python-debian==0.1.27
 python-xlib==0.14
