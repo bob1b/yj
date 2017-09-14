@@ -27,5 +27,13 @@ class getCallSummary(Resource):
 class getActionItems(Resource):
 
     @RESTfulResponse()
-    def get(self, request, contact_id=None, **kwargs):
-        return Users.objects.all()
+    def get(self, request, is_complete=None, **kwargs):
+        user_id = 1
+        ai = None
+        if is_complete is not None and is_complete.lower() == "true":
+            ai = ActionItem.objects.filter(rep_id=user_id, is_complete=True)
+        elif is_complete is not None and is_complete.lower() == "false":
+            ai = ActionItem.objects.filter(rep_id=user_id, is_complete=False)
+        else:
+            ai = ActionItem.objects.filter(rep_id=user_id)
+        return ai

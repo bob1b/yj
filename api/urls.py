@@ -5,8 +5,9 @@ from .views import getUsers, getCallSummary, getActionItems
 urlpatterns = patterns('',
     url(r'^getUsers/?$', getUsers.as_view()),
     url(r'^getCallSummary/?$', getCallSummary.as_view()),
+    url(r'^getActionItems/?$', getActionItems.as_view()),
+    url(r'^getActionItems/is_complete=(?P<is_complete>\w+)/?$', getActionItems.as_view()),
 
-    url(r'^getActionItems/?$', getUsers.as_view()),
     url(r'^createActionItem/?$', getUsers.as_view()),
     url(r'^resolveeActionItem/?$', getUsers.as_view()),
     url(r'^getTickets/?$', getUsers.as_view()),
