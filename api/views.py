@@ -4,17 +4,15 @@ from django.core import serializers
 from simple_rest import Resource
 
 from .models import Customer, Ticket, Note, ActionItem, Users 
+from simple_rest.response import RESTfulResponse
 
 
-class Contacts(Resource):
+# TODO - @admin_required
+class Users(Resource):
 
+    @RESTfulResponse()
     def get(self, request, contact_id=None, **kwargs):
-        json_serializer = serializers.get_serializer('json')()
-        if contact_id:
-            contacts = json_serializer.serialize(Contact.objects.filter(pk=contact_id))
-        else:
-            contacts = json_serializer.serialize(Contact.objects.all())
-        return HttpResponse(contacts, content_type='application/json', status=200)
+        return Users.objects.all()
 
     def post(self, request, *args, **kwargs):
         Contact.objects.create(

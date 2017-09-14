@@ -1,11 +1,21 @@
 from django.conf.urls import patterns, include, url
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
-from .views import Contacts
+from .views import Users
 
 urlpatterns = patterns('',
-    # Allow access to the contacts resource collection
-    url(r'^contacts/?$', Contacts.as_view()),
-
-    # Allow access to a single contact resource
-    url(r'^contacts/(?P<contact_id>[0-9]+)/?$', Contacts.as_view()),
+    url(r'^getUsers/?$', Users.as_view()),
+    url(r'^getCallSummary/?$', Users.as_view()),
+    url(r'^getActionItems/?$', Users.as_view()),
+    url(r'^createActionItem/?$', Users.as_view()),
+    url(r'^resolveeActionItem/?$', Users.as_view()),
+    url(r'^getTickets/?$', Users.as_view()),
+    url(r'^getTicketDetailByID/?$', Users.as_view()),
+    url(r'^getCustomerByID/?$', Users.as_view()),
+    url(r'^addTicket/?$', Users.as_view()),
+    url(r'^updateTicketStatus/?$', Users.as_view()),
+    url(r'^addNoteToTIcket/?$', Users.as_view()),
 )
+
+urlpatterns += staticfiles_urlpatterns()
+
