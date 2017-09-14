@@ -10,17 +10,22 @@ from simple_rest.response import RESTfulResponse
 class getUsers(Resource):
 
     @RESTfulResponse()
-    def get(self, request, contact_id=None, **kwargs):
+    def get(self, request, **kwargs):
         return Users.objects.all()
 
-    def post(self, request, *args, **kwargs):
-        Contact.objects.create(
-            fname=request.POST.get('fname'),
-            lname=request.POST.get('lname'),
-            phone_number=request.POST.get('phone_number'))
-        return HttpResponse(status=201)
 
-    def delete(self, request, contact_id):
-        contact = Contact.objects.get(pk=contact_id)
-        contact.delete()
-        return HttpResponse(status=200)
+class getCallSummary(Resource):
+
+    @RESTfulResponse()
+    def get(self, request, **kwargs):
+        summ = {'pending':-1, 'ready for approval':-1, 'resolved':-1, 'reopened':-1}
+        for idx, status in enumerate(summ):
+            summ[status] = len(Ticket.objects.filter(status=status))
+        return summ
+
+
+class getActionItems(Resource):
+
+    @RESTfulResponse()
+    def get(self, request, contact_id=None, **kwargs):
+        return Users.objects.all()
