@@ -15,7 +15,3 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += staticfiles_urlpatterns()
-
-
-import pprint
-pprint.pprint(urlpatterns)

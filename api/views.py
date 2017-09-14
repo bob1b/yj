@@ -6,9 +6,8 @@ from simple_rest import Resource
 from .models import Customer, Ticket, Note, ActionItem, Users 
 from simple_rest.response import RESTfulResponse
 
-
 # TODO - @admin_required
-class Users(Resource):
+class getUsers(Resource):
 
     @RESTfulResponse()
     def get(self, request, contact_id=None, **kwargs):

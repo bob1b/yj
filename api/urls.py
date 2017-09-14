@@ -1,17 +1,17 @@
 from django.conf.urls import patterns, include, url
 
-from .views import Users
+from .views import getUsers
 
 urlpatterns = patterns('',
-    url(r'^getUsers/?$', Users.as_view()),
-    url(r'^getCallSummary/?$', Users.as_view()),
-    url(r'^getActionItems/?$', Users.as_view()),
-    url(r'^createActionItem/?$', Users.as_view()),
-    url(r'^resolveeActionItem/?$', Users.as_view()),
-    url(r'^getTickets/?$', Users.as_view()),
-    url(r'^getTicketDetailByID/?$', Users.as_view()),
-    url(r'^getCustomerByID/?$', Users.as_view()),
-    url(r'^addTicket/?$', Users.as_view()),
-    url(r'^updateTicketStatus/?$', Users.as_view()),
-    url(r'^addNoteToTIcket/?$', Users.as_view()),
+    url(r'^getUsers/?$', getUsers.as_view()),
+    url(r'^getCallSummary/?$', getUsers.as_view()),
+    url(r'^getActionItems/?$', getUsers.as_view()),
+    url(r'^createActionItem/?$', getUsers.as_view()),
+    url(r'^resolveeActionItem/?$', getUsers.as_view()),
+    url(r'^getTickets/?$', getUsers.as_view()),
+    url(r'^getTicketDetailByID/?$', getUsers.as_view()),
+    url(r'^getCustomerByID/?$', getUsers.as_view()),
+    url(r'^addTicket/?$', getUsers.as_view()),
+    url(r'^updateTicketStatus/?$', getUsers.as_view()),
+    url(r'^addNoteToTIcket/?$', getUsers.as_view()),
 )
