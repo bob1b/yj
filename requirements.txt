@@ -1,3 +1,4 @@
 gunicorn
 Django==1.5
 psycopg2
+django-simple-rest==1.3
