@@ -1,5 +1,4 @@
 from django.conf.urls import patterns, include, url
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from .views import Users
 
@@ -16,6 +15,3 @@ urlpatterns = patterns('',
     url(r'^updateTicketStatus/?$', Users.as_view()),
     url(r'^addNoteToTIcket/?$', Users.as_view()),
 )
-
-urlpatterns += staticfiles_urlpatterns()
-
