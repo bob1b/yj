@@ -6,7 +6,9 @@ from simple_rest import Resource
 from .models import Customer, Ticket, Note, ActionItem, Users 
 from simple_rest.response import RESTfulResponse
 
-# TODO - @admin_required
+# TODO - @admin_required on all calls
+# TODO - login/logout calls
+# TODO - pagination
 class getUsers(Resource):
 
     @RESTfulResponse()

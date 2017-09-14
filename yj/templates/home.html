@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
+  <ul>
+    <li><a href="api/getUsers/" target="_blank">api/getUsers</a></li>
+    <li><a href="api/getCallSummary/" target="_blank">api/getCallSummary</a></li>
+    <li><a href="api/getActionItems/" target="_blank">api/getActionItems</a></li>
+    <li><a href="api/getActionItems/is_complete=True" target="_blank">api/getActionItemsis_complete=True</a></li>
+    <li><a href="api/getActionItems/is_complete=False" target="_blank">api/getActionItemsis_complete=False</a></li>
+  </ul>
+{% endblock content %}
+
+{% block unused %}
  <!-- Jumbotron -->
 <div class="jumbotron">
     <h1><img src="{{ STATIC_URL }}img/favicon.png" alt="logo"> yj</h1>
@@ -26,4 +36,4 @@
         <p><a class="btn btn-primary" href="#">View details &raquo;</a></p>
     </div>
 </div>
-{% endblock content %}
+{% endblock unused %}
