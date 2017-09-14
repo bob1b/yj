@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.conf.urls import patterns, include, url
+
 
 # Create your views here.
 # For more information on this file, see
