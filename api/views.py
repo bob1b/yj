@@ -5,6 +5,7 @@ from simple_rest import Resource
 
 from .models import Customer, Ticket, Note, ActionItem, Users 
 from simple_rest.response import RESTfulResponse
+import pprint
 
 # TODO - @admin_required on all calls
 # TODO - login/logout calls
@@ -67,3 +68,17 @@ class createActionItem(Resource):
         new_action_item.save()
         return {"status":"Success", "message":"Action item has been added"}
 
+
+class resolveActionItem(Resource):
+    """ Resolve Action Item (takes item id, sets is_complete=true) """
+
+    @RESTfulResponse()
+    def get(self, request, id):
+        # ensure record exists and is_complete = False
+        records = ActionItem.objects.filter(id=id, is_complete=False)
+        if len(records) == 0:
+            return {"status":"Failure", "message":"Action item #%d either does not exist " + \
+                                                  "or has already been completed" % id}
+        records[0].is_complete = True
+        records[0].save()
+        return {"status":"Success", "message":"Action has been marked as completed "}
