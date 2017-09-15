@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     url(r'^getTickets/?$', getTickets.as_view()),
     url(r'^getTickets/dateRange=(?P<dateRange>[\w\d,-]+)?$', getTickets.as_view()),
     url(r'^getTickets/status=(?P<status>[\w\d,]+)?$', getTickets.as_view()),
-    url(r'^getTickets/dateRange=(?P<dateRange>[\w\d,]+)/status=(?P<status>[\w\d,]+)?$', getTickets.as_view()),
+    url(r'^getTickets/dateRange=(?P<dateRange>[\w\d,-]+)/status=(?P<status>[\w\d,]+)?$', getTickets.as_view()),
 
     url(r'^getTicketDetailByID/?$', getUsers.as_view()),
     url(r'^getCustomerByID/?$', getUsers.as_view()),
