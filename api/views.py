@@ -1,10 +1,12 @@
 from django import forms
+from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from django.core import serializers
 from simple_rest import Resource
 
 from .models import Customer, Ticket, Note, ActionItem, Users 
 from simple_rest.response import RESTfulResponse
+import json
 import pprint
 
 # TODO - @admin_required on all calls
@@ -121,3 +123,25 @@ class getTickets(Resource):
             tickets = tickets.filter(status__in=status.split(','))
 
         return tickets
+
+
+class getTicketDetailByID(Resource):
+    """ Get Ticket Detail by ID (returns ticket detail (ticket id, customer id, contact name, contact phone, rep id & rep name, subject, details, open date, resolved date, status) + all notes (id, datetime, rep name & id, text) for the ticket -- no pagination on the notes) """
+
+    @RESTfulResponse()
+    def get(self, request, id=None, **kwargs):
+        if id is None:
+            return {"status":"Failure", "message":"Ticket id is required"}
+
+        records = Ticket.objects.filter(id=id)
+        if len(records) == 0:
+            return {"status":"Failure", "message":"No ticket with that ID"}
+
+        ticket = model_to_dict(records.get())
+
+        notes = Note.objects.filter(ticket_id=id)
+        ticket['notes'] = []
+        for note in notes:
+            ticket['notes'].append(model_to_dict(note))
+
+        return ticket
