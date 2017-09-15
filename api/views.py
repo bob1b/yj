@@ -145,3 +145,19 @@ class getTicketDetailByID(Resource):
             ticket['notes'].append(model_to_dict(note))
 
         return ticket
+
+
+class getCustomerByID(Resource):
+    """ Get Customer by ID (returns Customer ID, Customer Name, Phone number) """
+
+    @RESTfulResponse()
+    def get(self, request, id=None, **kwargs):
+        if id is None:
+            return {"status":"Failure", "message":"Customer id is required"}
+
+        records = Customer.objects.filter(id=id)
+        if len(records) == 0:
+            return {"status":"Failure", "message":"No customer with that ID"}
+
+        customer = model_to_dict(records.get())
+        return customer
