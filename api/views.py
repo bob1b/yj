@@ -82,3 +82,42 @@ class resolveActionItem(Resource):
         records[0].is_complete = True
         records[0].save()
         return {"status":"Success", "message":"Action has been marked as completed "}
+
+
+class getTickets(Resource):
+    """ Get Tickets (optional date range filter, optional status filter that can contain one or multiple statuses, if filter not supplied return all), returns all ticket fields, paged """
+
+    @RESTfulResponse()
+    def get(self, request, dateRange=None, status=None, **kwargs):
+        """ dateRange=x,y
+            dateRange=,y
+            dateRange=x """
+        tickets = Ticket.objects.filter()
+
+        if dateRange is not None:
+            dates = str(dateRange).split(',')
+            dateStart = None
+            dateEnd = None
+            if len(dates) == 1:
+                dateStart = dates[0]
+            elif len(dates) > 1:
+                dateStart = dates[0]
+                dateEnd = dates[1]
+
+            if dateStart == "":
+                dateStart = None
+            if dateEnd == "":
+                dateEnd = None
+
+            print "date range: %s to %s" % (dateStart, dateEnd)
+            if dateStart:
+                tickets = tickets.filter(created_date__gte=dateStart)
+            if dateEnd:
+                tickets = tickets.filter(created_date__lte=dateEnd)
+
+        if status is not None:
+            print "status: %s" % status
+            pprint.pprint(status.split(','))
+            tickets = tickets.filter(status__in=status.split(','))
+
+        return tickets
