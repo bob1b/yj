@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from .views import getUsers, getCallSummary, getActionItems, createActionItem, resolveActionItem
 from .views import getTickets, getTicketDetailByID, getCustomerByID, addTicket, updateTicketStatus
+from .views import addNoteToTicket
 
 urlpatterns = patterns('',
     url(r'^getUsers/?$', getUsers.as_view()),
@@ -18,6 +19,5 @@ urlpatterns = patterns('',
     url(r'^getCustomerByID/(?P<id>[\d]+)?$', getCustomerByID.as_view()),
     url(r'^addTicket/?$', addTicket.as_view()),
     url(r'^updateTicketStatus/(?P<id>[\d]+)/(?P<new_status>[\w]+)?$', updateTicketStatus.as_view()),
-
-    url(r'^addNoteToTIcket/?$', getUsers.as_view()),
+    url(r'^addNoteToTicket/?$', addNoteToTicket.as_view()),
 )

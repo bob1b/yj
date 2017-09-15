@@ -224,4 +224,34 @@ class updateTicketStatus(Resource):
         return {"status":"Success", "message":"Ticket has been updated"}
 
 
+class NoteForm(forms.ModelForm):
+    class Meta:
+        model = Note
+        fields = ['ticket_id', 'rep_id', 'note_text', 'created_date']
+
+class addNoteToTicket(Resource):
+
+    @RESTfulResponse()
+    def post(self, request):
+        values = request.POST.dict()
+        if 'note_text'not in values:
+            return {"status":"Failure", "message":"Missing note_text"}
+        if 'ticket_id' not in values:
+            return {"status":"Failure", "message":"Missing ticket_id"}
+
+        try:
+            ticket = Ticket.objects.get(id=values['ticket_id'])
+        except:
+            return {"status":"Failure", "message":"No ticket found with ID %s" % \
+                                                  values['ticket_id']}
+
+        new_note_vals = { 'note_text':values['note_text'],
+                          'ticket_id':values['ticket_id'],
+                          'rep_id':1, # TODO
+                          'created_date':datetime.datetime.now() }
+        form = NoteForm(new_note_vals)
+
+        newNote = form.save() #commit=False)
+        return {"status":"Success", "message":"Note has been added"}
+
 # TODO - datetime

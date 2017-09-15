@@ -36,5 +36,14 @@
       </form>
     </li>
     <li><a href="api/updateTicketStatus/1/resolved" target="_blank">api/updateTicketStatus/1/resolved</a></li>
+    <li>
+      <form method="post" action="api/addNoteToTicket" class="inline" target="_blank">
+        <input type="hidden" name="note_text" value="note text here">
+        <input type="hidden" name="ticket_id" value="1">
+        <button type="submit" name="submit_param" value="submit_value" class="link-button">
+          api/addNoteToTicket/ (post)
+        </button>
+      </form>
+    </li>
   </ul>
 {% endblock content %}
