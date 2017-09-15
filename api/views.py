@@ -14,6 +14,7 @@ import pprint
 # TODO - login/logout calls
 # TODO - pagination
 
+STATUSES =  ['pending', 'ready for approval', 'resolved', 'reopened']
 
 class getUsers(Resource):
     """ Get Users (return id, name, email) """
@@ -188,4 +189,39 @@ class addTicket(Resource):
 
 
         new_action_item = form.save()
-        return {"status":"Success", "message":"Ticket  has been added"}
+        return {"status":"Success", "message":"Ticket has been added"}
+
+
+class updateTicketStatus(Resource):
+    """ Update Ticket Status (takes ticket ID, new status - autopopulate lastmod time) """
+
+    @RESTfulResponse()
+    def get(self, request, id=None, new_status=None, **kwargs):
+        if new_status is None:
+            return {"status":"Failure", \
+                    "message":"Missing a status value; value should be one of these [%s]" % \
+                        ", ".join(STATUSES)}
+
+        new_status = new_status.lower()
+        if new_status is None or new_status not in STATUSES:
+            return {"status":"Failure", \
+                    "message":"Invalid status; value should be one of these [%s]" % \
+                        ", ".join(STATUSES)}
+        if id is None:
+            return {"status":"Failure", "message":"Ticket id is required"}
+
+        try:
+            ticket = Ticket.objects.get(id=id)
+        except:
+            return {"status":"Failure", "message":"No ticket found with ID %s" % id}
+
+        ticket.status = new_status
+        ticket.last_modified_date = datetime.date.today()
+        if new_status == "resolved":
+            ticket.resolved_date = datetime.date.today()
+        ticket.save()
+
+        return {"status":"Success", "message":"Ticket has been updated"}
+
+
+# TODO - datetime
