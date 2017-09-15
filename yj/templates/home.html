@@ -17,11 +17,26 @@
         api/createActionItem (post)
       </button>
     </form>
+
     </li>
     <li><a href="api/resolveActionItem/id=1" target="_blank">api/resolveActionItem/id=1</a></li>
     <li><a href="api/getTickets/dateRange=2017-09-10,2017-09-15/status=pending,open" target="_blank">api/getTickets/dateRange=2017-09-10,2017-09-15/status=pending,open</a></li>
     <li><a href="api/getTicketDetailByID/1" target="_blank">api/getTicketDetailByID/1</a></li>
     <li><a href="api/getCustomerByID/1" target="_blank">api/getCustomer/1</a></li>
+    <li>
+
+    <form method="post" action="api/addTicket" class="inline" target="_blank">
+      <input type="hidden" name="customer_id" value="1">
+      <input type="hidden" name="contact_name" value="Dr. Something">
+      <input type="hidden" name="contact_phone" value="111-111-1111">
+      <input type="hidden" name="subject" value="subject stuff here">
+      <input type="hidden" name="details" value="details stuff here">
+      <button type="submit" name="submit_param" value="submit_value" class="link-button">
+        api/addTicket (post)
+      </button>
+    </form>
+
+    </li>
   </ul>
 {% endblock content %}
 

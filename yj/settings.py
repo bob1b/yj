@@ -16,10 +16,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en//howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# TODO - SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'syu*k+qn_u59$&jw9)!i_=l_+6a+lx_6h5sx&nh6pc_h$5ipus'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# TODO - SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 TEMPLATE_DEBUG = True
@@ -64,12 +64,12 @@ DATABASES = {
     },
     'default': {
       'ENGINE': 'django.db.backends.postgresql_psycopg2',
-      'NAME': 'd149bqjp4l9gq4',
-      'USER': 'acmwffvfelomxx',
-      'PASSWORD': 'ed527273b68ede2f591975569db689453c1888612f9429b8f51ac8e3cdb4df6c',
-      'HOST': 'ec2-23-23-248-247.compute-1.amazonaws.com',
+      'NAME': 'd22fqk12gvhbv8',
+      'USER': 'nrwudgczitjgmj',
+      'PASSWORD': '2ed43d1dee711fb2d42d843566ba52f79d19d4377a4dd97b8289ce440170f6a8',
+      'HOST': 'ec2-204-236-236-188.compute-1.amazonaws.com',
       'PORT': '5432',
-      'URI': 'postgres://acmwffvfelomxx:ed527273b68ede2f591975569db689453c1888612f9429b8f51ac8e3cdb4df6c@ec2-23-23-248-247.compute-1.amazonaws.com:5432/d149bqjp4l9gq4'
+      'URI': 'postgres://nrwudgczitjgmj:2ed43d1dee711fb2d42d843566ba52f79d19d4377a4dd97b8289ce440170f6a8@ec2-204-236-236-188.compute-1.amazonaws.com:5432/d22fqk12gvhbv8'
     }
 }
 
