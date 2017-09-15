@@ -179,8 +179,8 @@ class addTicket(Resource):
         values = request.POST.dict()
         values['rep_id'] = 1
         values['status'] ="pending"
-        values['created_date'] = datetime.date.today()
-        values['last_modified_date'] = datetime.date.today()
+        values['created_date'] = datetime.datetime.now()
+        values['last_modified_date'] = datetime.datetime.now()
         values['resolved_date'] = ""
         form = TicketForm(values)
 
@@ -216,9 +216,9 @@ class updateTicketStatus(Resource):
             return {"status":"Failure", "message":"No ticket found with ID %s" % id}
 
         ticket.status = new_status
-        ticket.last_modified_date = datetime.date.today()
+        ticket.last_modified_date = datetime.datetime.now()
         if new_status == "resolved":
-            ticket.resolved_date = datetime.date.today()
+            ticket.resolved_date = datetime.datetime.now()
         ticket.save()
 
         return {"status":"Success", "message":"Ticket has been updated"}
