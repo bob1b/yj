@@ -6,6 +6,7 @@ from simple_rest import Resource
 
 from .models import Customer, Ticket, Note, ActionItem, Users 
 from simple_rest.response import RESTfulResponse
+import datetime
 import json
 import pprint
 
@@ -161,3 +162,30 @@ class getCustomerByID(Resource):
 
         customer = model_to_dict(records.get())
         return customer
+
+
+class TicketForm(forms.ModelForm):
+    class Meta:
+        model = Ticket
+        fields = ['rep_id', 'status', 'created_date', 'last_modified_date', 'resolved_date', \
+                  'customer_id', 'contact_name', 'contact_phone', 'subject', 'details']
+
+class addTicket(Resource):
+    """ Add Ticket (takes customer id, contact name, contact phone, subject, details, autopopulate datetime & rep id from the JWT logged in user) """
+
+    @RESTfulResponse()
+    def post(self, request):
+        values = request.POST.dict()
+        values['rep_id'] = 1
+        values['status'] ="pending"
+        values['created_date'] = datetime.date.today()
+        values['last_modified_date'] = datetime.date.today()
+        values['resolved_date'] = ""
+        form = TicketForm(values)
+
+        if not form.is_valid():
+            return {"status":"Failure", "message":"Missing one or more form values"}
+
+
+        new_action_item = form.save()
+        return {"status":"Success", "message":"Ticket  has been added"}

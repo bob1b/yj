@@ -12,7 +12,7 @@ class Ticket(models.Model):
     contact_phone = models.CharField(max_length=30) # (may or may not be customer's phone)
     rep_id = models.IntegerField() # (FK to Users)
     created_date = models.DateField() # (set during ticket creation)
-    resolved_date = models.DateField() # (should be populated when status is set to 'Resolved')
+    resolved_date = models.DateField(blank=True, null=True, default=None) # (should be populated when status is set to 'Resolved')
     last_modified_date = models.DateField() # (autoupdate)
     subject = models.CharField(max_length=200)
     details = models.CharField(max_length=500)
