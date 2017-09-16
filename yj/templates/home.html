@@ -63,6 +63,8 @@
       $("ul.api_test_links li a").each(function(){
         var url = $(this).attr('href');
         $(this).click( function(e){
+          $("textarea").val('');
+
           $.ajax({
               dataType:'json',
               url: url,
@@ -70,8 +72,26 @@
           }).done( function(data){
             $("textarea").val( JSON.stringify(data) );
           });
+
           e.preventDefault();
         });
+      });
+
+      $( "form" ).on( "submit", function( event ) {
+        event.preventDefault();
+        var data = $( this ).serialize();
+        var url = $(this).attr("action");
+        $("textarea").val('');
+
+        $.ajax({
+            method:'POST',
+            dataType:'json',
+            url: url,
+           headers: {"Authorization": "test-value"}
+        }).done( function(data){
+          $("textarea").val( JSON.stringify(data) );
+        });
+
       });
     });
   </script>
