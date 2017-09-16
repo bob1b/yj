@@ -6,9 +6,9 @@ from django.core.paginator import Paginator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-
+import python_jwt as jwt, Crypto.PublicKey.RSA as RSA, datetime
 from simple_rest import Resource
-from .models import Customer, Ticket, Note, ActionItem, Users 
+from .models import Customer, Ticket, Note, ActionItem, Token, Users
 from simple_rest.response import RESTfulResponse
 import datetime
 import json
@@ -41,14 +41,23 @@ class do_login(Resource):
 
             login(request, user)
 
-            # TODO - return JWT
-            jwt = None
+            # generate JWT
+            key = RSA.generate(2048)
+            payload = { 'foo': user.username + user.email };
+            token = jwt.generate_jwt(payload, key, 'PS256', datetime.timedelta(minutes=24*60))
+
+            # delete any existing Token records for this user
+            Token.objects.filter(id=user.id).delete()
+
+            # save token in Token table with user_id
+            token_record = Token.objects.create(user_id=user.id, jwt=token)
+
             return {"status":"Success",
                     "message":"User has been validated",
                     "user_id":user.id,
                     "name":user.username,
                     "email_address":user.email,
-                    "JWT":jwt}
+                    "JWT":token}
 
         return {"status":"Failure", "message":"Invalid credentials"}
 
@@ -63,7 +72,6 @@ class do_logout(Resource):
         return {"status":"Success", "message":"Logged out"}
 
 
-# TODO - add jwt column to auth table
 # TODO - authenticate jwt + session id?
 # TODO - login: username + email  --> jwt token returned and stored in a table
 
@@ -71,6 +79,11 @@ def get_rep_id(user):
     if user is None:
         return -1
     return user.id
+
+def validate_jwt(request, user_id):
+    if 'Authorization' not in request.META:
+        return (False, {"status":"Failure", "message":"Missing JWT"})
+    return (False, {"status":"Failure", "message":"Missing JWT"})
 
 
 # TODO - validate JWT required
@@ -84,6 +97,9 @@ class getUsers(Resource):
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}
+        (valid, ret_val) = validate_jwt(request, request.user.id)
+        if not valid:
+            return ret_val
 
         page_number = 1
         if request.GET.get('page') is not None:

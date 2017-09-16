@@ -37,3 +37,8 @@ class Users(models.Model):
     id = models.AutoField(primary_key=True) # (PK)
     name = models.CharField(max_length=100)
     email_address = models.CharField(max_length=100)
+
+class Token(models.Model):
+    id = models.AutoField(primary_key=True) # (PK)
+    user_id = models.IntegerField()
+    jwt = models.CharField(max_length=1024)
