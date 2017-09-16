@@ -12,6 +12,10 @@
     margin-top: -20px;
 }
 
+h1 { border-bottom:1px solid #999; color:#444; }
+#wrap > .container { padding:0; }
 .container { position:relative; overflow:hidden; }
 .left { float:left; }
-textarea { float:right; height:400px; width:40%; }
+.right { float:right; width:40%;  }
+textarea#returnVal { width:100%; height:400px; }
+textarea#jwt { width:100%; height:140px; }

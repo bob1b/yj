@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <h1>Yellow Jackal API</h1>
   <div class="container">
     <div class="left">
+      <h3>Test links</h3>
       <a href="/admin/" target="_blank"><b>Djangoadmin (admin:alpha)</b></a>
       <ul class="api_test_links">
         <li><a href="api/login?username=b&email=bailey.robert.a@gmail.com" target="_blank">Login</a></li>
@@ -53,24 +55,38 @@
       </ul>
     </div> <!-- left -->
 
-    <textarea>
-    </textarea>
+    <div class="right">
+      <h3>Return value (json)</h3>
+      <textarea id="returnVal"></textarea>
+    </div>
   </div> <!-- container -->
+
+  <h3>JWT</h3>
+  <textarea id="jwt"></textarea>
 
 
   <script>
+    function getJWT(){
+      return $("#jwt").val();
+    }
+
     $( document ).ready(function() {
       $("ul.api_test_links li a").each(function(){
         var url = $(this).attr('href');
         $(this).click( function(e){
-          $("textarea").val('');
+          $("#returnVal").val('');
 
           $.ajax({
               dataType:'json',
               url: url,
-             headers: {"Authorization": "test-value"}
+             headers: {"Authorization": getJWT()}
           }).done( function(data){
-            $("textarea").val( JSON.stringify(data) );
+            $("#returnVal").val( JSON.stringify(data) );
+            if (url.substring(0, 9) === "api/login"){
+              if (typeof(data.JWT) !== "undefined"){
+                $("#jwt").val( data.JWT );
+              }
+            }
           });
 
           e.preventDefault();
@@ -81,15 +97,15 @@
         event.preventDefault();
         var data = $( this ).serialize();
         var url = $(this).attr("action");
-        $("textarea").val('');
+        $("#returnVal").val('');
 
         $.ajax({
             method:'POST',
             dataType:'json',
             url: url,
-           headers: {"Authorization": "test-value"}
+           headers: {"Authorization": getJWT()}
         }).done( function(data){
-          $("textarea").val( JSON.stringify(data) );
+          $("#returnVal").val( JSON.stringify(data) );
         });
 
       });
