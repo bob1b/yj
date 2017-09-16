@@ -47,7 +47,7 @@ class do_login(Resource):
             token = jwt.generate_jwt(payload, key, 'PS256', datetime.timedelta(minutes=24*60))
 
             # delete any existing Token records for this user
-            Token.objects.filter(id=user.id).delete()
+            Token.objects.filter(user_id=user.id).delete()
 
             # save token in Token table with user_id
             token_record = Token.objects.create(user_id=user.id, jwt=token)
@@ -81,9 +81,17 @@ def get_rep_id(user):
     return user.id
 
 def validate_jwt(request, user_id):
-    if 'Authorization' not in request.META:
+    token = None
+    if 'HTTP_AUTHORIZATION' not in request.META:
         return (False, {"status":"Failure", "message":"Missing JWT"})
-    return (False, {"status":"Failure", "message":"Missing JWT"})
+
+    token = request.META['HTTP_AUTHORIZATION']
+
+    token_records = Token.objects.filter(user_id=user_id, jwt=token)
+    if len(token_records) == 0:
+        return (False, {"status":"Failure", "message":"Invalid JWT value"})
+
+    return (True, {})
 
 
 # TODO - validate JWT required
@@ -126,6 +134,9 @@ class getCallSummary(Resource):
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}
+        (valid, ret_val) = validate_jwt(request, request.user.id)
+        if not valid:
+            return ret_val
 
         summ = {'pending':-1, 'ready for approval':-1, 'resolved':-1, 'reopened':-1}
         for idx, status in enumerate(summ):
@@ -143,6 +154,9 @@ class getActionItems(Resource):
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}
+        (valid, ret_val) = validate_jwt(request, request.user.id)
+        if not valid:
+            return ret_val
 
         is_complete = request.GET.get('is_complete') or ""
         is_complete = is_complete.lower()
@@ -186,6 +200,9 @@ class createActionItem(Resource):
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}
+        (valid, ret_val) = validate_jwt(request, request.user.id)
+        if not valid:
+            return ret_val
 
         form = ActionItemForm(request.POST)
 
@@ -206,6 +223,9 @@ class resolveActionItem(Resource):
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}
+        (valid, ret_val) = validate_jwt(request, request.user.id)
+        if not valid:
+            return ret_val
 
         # ensure record exists and is_complete = False
         records = ActionItem.objects.filter(id=id, is_complete=False)
@@ -230,6 +250,9 @@ class getTickets(Resource):
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}
+        (valid, ret_val) = validate_jwt(request, request.user.id)
+        if not valid:
+            return ret_val
 
         tickets = Ticket.objects.filter()
 
@@ -287,6 +310,9 @@ class getTicketDetailByID(Resource):
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}
+        (valid, ret_val) = validate_jwt(request, request.user.id)
+        if not valid:
+            return ret_val
 
         if id is None:
             return {"status":"Failure", "message":"Ticket id is required"}
@@ -313,6 +339,9 @@ class getCustomerByID(Resource):
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}
+        (valid, ret_val) = validate_jwt(request, request.user.id)
+        if not valid:
+            return ret_val
 
         if id is None:
             return {"status":"Failure", "message":"Customer id is required"}
@@ -339,6 +368,9 @@ class addTicket(Resource):
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}
+        (valid, ret_val) = validate_jwt(request, request.user.id)
+        if not valid:
+            return ret_val
 
         values = request.POST.dict()
         values['rep_id'] = rep_id
@@ -364,6 +396,9 @@ class updateTicketStatus(Resource):
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}
+        (valid, ret_val) = validate_jwt(request, request.user.id)
+        if not valid:
+            return ret_val
 
         if new_status is None:
             return {"status":"Failure", \
@@ -404,6 +439,9 @@ class addNoteToTicket(Resource):
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}
+        (valid, ret_val) = validate_jwt(request, request.user.id)
+        if not valid:
+            return ret_val
 
         values = request.POST.dict()
         if 'note_text'not in values:
