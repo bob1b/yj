@@ -2,26 +2,47 @@ from django import forms
 from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from django.core import serializers
+from django.core.paginator import Paginator
 from simple_rest import Resource
-
 from .models import Customer, Ticket, Note, ActionItem, Users 
 from simple_rest.response import RESTfulResponse
 import datetime
 import json
 import pprint
 
+# TODO - pagination: https://docs.djangoproject.com/en/1.11/topics/pagination/
+#          getActionItems, getTickets
 # TODO - @admin_required on all calls
-# TODO - login/logout calls
-# TODO - pagination
+# TODO - login/logout calls (JWT tokens): https://jwt.io/#debugger
+# TODO - rep_id
+# TODO - djangoadmin tweaks
+# TODO - code cleanup
+# TODO - homepage documentation
 
 STATUSES =  ['pending', 'ready for approval', 'resolved', 'reopened']
 
 class getUsers(Resource):
     """ Get Users (return id, name, email) """
 
+    perPage = 10
+
     @RESTfulResponse()
     def get(self, request, **kwargs):
-        return Users.objects.all()
+        page_number = 1
+        if request.GET.get('page'):
+            page_number = request.GET.get('page')
+        p = Paginator(Users.objects.all(), self.perPage)
+        users = None
+        try:
+            users = p.page(page_number)
+        except:
+            print "Error getting page %d, reverting to page 1" % page_number
+            page = 1
+            users = p.page(page_number)
+
+        return { 'page_number':page_number,
+                 'num_pages':p.num_pages,
+                 'data':[model_to_dict(u) for u in users.object_list] }
 
 
 class getCallSummary(Resource):
@@ -253,5 +274,3 @@ class addNoteToTicket(Resource):
 
         newNote = form.save() #commit=False)
         return {"status":"Success", "message":"Note has been added"}
-
-# TODO - datetime
