@@ -6,7 +6,8 @@ from django.core.paginator import Paginator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-import python_jwt as jwt, Crypto.PublicKey.RSA as RSA, datetime
+import python_jwt as jwt
+import Crypto.PublicKey.RSA as RSA
 from simple_rest import Resource
 from .models import Customer, Ticket, Note, ActionItem, Token, Users
 from simple_rest.response import RESTfulResponse
