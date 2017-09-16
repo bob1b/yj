@@ -10,8 +10,6 @@ import datetime
 import json
 import pprint
 
-# TODO - pagination: https://docs.djangoproject.com/en/1.11/topics/pagination/
-#          getActionItems, getTickets
 # TODO - @admin_required on all calls
 # TODO - login/logout calls (JWT tokens): https://jwt.io/#debugger
 # TODO - rep_id
@@ -40,7 +38,7 @@ class getUsers(Resource):
             page_number = 1
             users = p.page(page_number)
 
-        return { 'page_number':page_number,
+        return { 'page_number':int(page_number),
                  'num_pages':p.num_pages,
                  'data':[model_to_dict(u) for u in users.object_list] }
 
@@ -88,7 +86,7 @@ class getActionItems(Resource):
             page_number = 1
             page = p.page(page_number)
 
-        return { 'page_number':page_number,
+        return { 'page_number':int(page_number),
                  'num_pages':p.num_pages,
                  'data':[model_to_dict(ai) for ai in page.object_list] }
 
@@ -133,12 +131,18 @@ class resolveActionItem(Resource):
 class getTickets(Resource):
     """ Get Tickets (optional date range filter, optional status filter that can contain one or multiple statuses, if filter not supplied return all), returns all ticket fields, paged """
 
+    perPage = 10
+
     @RESTfulResponse()
     def get(self, request, dateRange=None, status=None, **kwargs):
         """ dateRange=x,y
             dateRange=,y
             dateRange=x """
         tickets = Ticket.objects.filter()
+
+        page_number = 1
+        if request.GET.get('page') is not None:
+            page_number = request.GET.get('page')
 
         if dateRange is not None:
             dates = str(dateRange).split(',')
@@ -165,6 +169,19 @@ class getTickets(Resource):
             print "status: %s" % status
             pprint.pprint(status.split(','))
             tickets = tickets.filter(status__in=status.split(','))
+
+        p = Paginator(tickets, self.perPage)
+        page = None
+        try:
+            page = p.page(page_number)
+        except:
+            print "Error getting page %s, reverting to page 1" % str(page_number)
+            page_number = 1
+            page = p.page(page_number)
+
+        return { 'page_number':int(page_number),
+                 'num_pages':p.num_pages,
+                 'data':[model_to_dict(t) for t in page.object_list] }
 
         return tickets
 
