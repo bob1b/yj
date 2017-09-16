@@ -2,9 +2,11 @@ from django.conf.urls import patterns, include, url
 
 from .views import getUsers, getCallSummary, getActionItems, createActionItem, resolveActionItem
 from .views import getTickets, getTicketDetailByID, getCustomerByID, addTicket, updateTicketStatus
-from .views import addNoteToTicket
+from .views import addNoteToTicket, do_login, do_logout
 
 urlpatterns = patterns('',
+    url(r'^login/?$', do_login.as_view()),
+    url(r'^logout/?$', do_logout.as_view()),
     url(r'^getUsers/?$', getUsers.as_view()),
     url(r'^getCallSummary/?$', getCallSummary.as_view()),
     url(r'^getActionItems/?$', getActionItems.as_view()),

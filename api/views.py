@@ -3,6 +3,10 @@ from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from django.core import serializers
 from django.core.paginator import Paginator
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+
 from simple_rest import Resource
 from .models import Customer, Ticket, Note, ActionItem, Users 
 from simple_rest.response import RESTfulResponse
@@ -10,15 +14,66 @@ import datetime
 import json
 import pprint
 
-# TODO - @admin_required on all calls
 # TODO - login/logout calls (JWT tokens): https://jwt.io/#debugger
-# TODO - rep_id
+# TODO - use User table instead of Userss
 # TODO - djangoadmin tweaks
 # TODO - code cleanup
 # TODO - homepage documentation
 
 STATUSES =  ['pending', 'ready for approval', 'resolved', 'reopened']
 
+class do_login(Resource):
+
+    @RESTfulResponse()
+    def get(self, request, **kwargs):
+        try:
+            username = request.GET.get('username')
+            email_address = request.GET.get('email')
+            print "logging in - %s:%s" % (username, email_address)
+            user = User.objects.get(username=username, email=email_address)
+            pprint.pprint(user)
+        except Exception as e:
+            return {"status":"Failure", "message":("unable to login: %s" % str(e))}
+
+        if user is not None:
+            # this is needed when not using authenticate()
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+
+            login(request, user)
+
+            # TODO - return JWT
+            jwt = None
+            return {"status":"Success",
+                    "message":"User has been validated",
+                    "user_id":user.id,
+                    "name":user.username,
+                    "email_address":user.email,
+                    "JWT":jwt}
+
+        return {"status":"Failure", "message":"Invalid credentials"}
+
+class do_logout(Resource):
+    @RESTfulResponse()
+    def get(self, request, **kwargs):
+        try:
+            logout(request)
+        except Exception as e:
+            return {"status":"Failure", "message":"An error occurred when logging out: %s" % str(e)}
+
+        return {"status":"Success", "message":"Logged out"}
+
+
+# TODO - add jwt column to auth table
+# TODO - authenticate jwt + session id?
+# TODO - login: username + email  --> jwt token returned and stored in a table
+
+def get_rep_id(user):
+    if user is None:
+        return -1
+    return user.id
+
+
+# TODO - validate JWT required
 class getUsers(Resource):
     """ Get Users (return id, name, email) """
 
@@ -26,6 +81,10 @@ class getUsers(Resource):
 
     @RESTfulResponse()
     def get(self, request, **kwargs):
+        rep_id = get_rep_id(request.user)
+        if rep_id < 0:
+            return {"status":"Access denied", "message":"User must log in"}
+
         page_number = 1
         if request.GET.get('page') is not None:
             page_number = request.GET.get('page')
@@ -48,6 +107,10 @@ class getCallSummary(Resource):
 
     @RESTfulResponse()
     def get(self, request, **kwargs):
+        rep_id = get_rep_id(request.user)
+        if rep_id < 0:
+            return {"status":"Access denied", "message":"User must log in"}
+
         summ = {'pending':-1, 'ready for approval':-1, 'resolved':-1, 'reopened':-1}
         for idx, status in enumerate(summ):
             summ[status] = len(Ticket.objects.filter(status=status))
@@ -61,7 +124,10 @@ class getActionItems(Resource):
 
     @RESTfulResponse()
     def get(self, request, **kwargs):
-        user_id = 3 # TODO
+        rep_id = get_rep_id(request.user)
+        if rep_id < 0:
+            return {"status":"Access denied", "message":"User must log in"}
+
         is_complete = request.GET.get('is_complete') or ""
         is_complete = is_complete.lower()
 
@@ -71,11 +137,11 @@ class getActionItems(Resource):
 
         ai = None
         if is_complete == "true":
-            ai = ActionItem.objects.filter(rep_id=user_id, is_complete=True)
+            ai = ActionItem.objects.filter(rep_id=rep_id, is_complete=True)
         elif is_complete == "false":
-            ai = ActionItem.objects.filter(rep_id=user_id, is_complete=False)
+            ai = ActionItem.objects.filter(rep_id=rep_id, is_complete=False)
         else:
-            ai = ActionItem.objects.filter(rep_id=user_id)
+            ai = ActionItem.objects.filter(rep_id=rep_id)
 
         p = Paginator(ai, self.perPage)
         page = None
@@ -101,14 +167,17 @@ class createActionItem(Resource):
 
     @RESTfulResponse()
     def post(self, request):
+        rep_id = get_rep_id(request.user)
+        if rep_id < 0:
+            return {"status":"Access denied", "message":"User must log in"}
+
         form = ActionItemForm(request.POST)
 
         if not form.is_valid():
             return {"status":"Failure", "message":"Missing one or more form values"}
 
-        # TODO - add created_by user value
         new_action_item = form.save(commit=False)
-        new_action_item.created_by = 1
+        new_action_item.created_by = rep_id
         new_action_item.save()
         return {"status":"Success", "message":"Action item has been added"}
 
@@ -118,6 +187,10 @@ class resolveActionItem(Resource):
 
     @RESTfulResponse()
     def get(self, request, id):
+        rep_id = get_rep_id(request.user)
+        if rep_id < 0:
+            return {"status":"Access denied", "message":"User must log in"}
+
         # ensure record exists and is_complete = False
         records = ActionItem.objects.filter(id=id, is_complete=False)
         if len(records) == 0:
@@ -138,6 +211,10 @@ class getTickets(Resource):
         """ dateRange=x,y
             dateRange=,y
             dateRange=x """
+        rep_id = get_rep_id(request.user)
+        if rep_id < 0:
+            return {"status":"Access denied", "message":"User must log in"}
+
         tickets = Ticket.objects.filter()
 
         page_number = 1
@@ -191,6 +268,10 @@ class getTicketDetailByID(Resource):
 
     @RESTfulResponse()
     def get(self, request, id=None, **kwargs):
+        rep_id = get_rep_id(request.user)
+        if rep_id < 0:
+            return {"status":"Access denied", "message":"User must log in"}
+
         if id is None:
             return {"status":"Failure", "message":"Ticket id is required"}
 
@@ -213,6 +294,10 @@ class getCustomerByID(Resource):
 
     @RESTfulResponse()
     def get(self, request, id=None, **kwargs):
+        rep_id = get_rep_id(request.user)
+        if rep_id < 0:
+            return {"status":"Access denied", "message":"User must log in"}
+
         if id is None:
             return {"status":"Failure", "message":"Customer id is required"}
 
@@ -235,8 +320,12 @@ class addTicket(Resource):
 
     @RESTfulResponse()
     def post(self, request):
+        rep_id = get_rep_id(request.user)
+        if rep_id < 0:
+            return {"status":"Access denied", "message":"User must log in"}
+
         values = request.POST.dict()
-        values['rep_id'] = 1
+        values['rep_id'] = rep_id
         values['status'] ="pending"
         values['created_date'] = datetime.datetime.now()
         values['last_modified_date'] = datetime.datetime.now()
@@ -256,6 +345,10 @@ class updateTicketStatus(Resource):
 
     @RESTfulResponse()
     def get(self, request, id=None, new_status=None, **kwargs):
+        rep_id = get_rep_id(request.user)
+        if rep_id < 0:
+            return {"status":"Access denied", "message":"User must log in"}
+
         if new_status is None:
             return {"status":"Failure", \
                     "message":"Missing a status value; value should be one of these [%s]" % \
@@ -292,6 +385,10 @@ class addNoteToTicket(Resource):
 
     @RESTfulResponse()
     def post(self, request):
+        rep_id = get_rep_id(request.user)
+        if rep_id < 0:
+            return {"status":"Access denied", "message":"User must log in"}
+
         values = request.POST.dict()
         if 'note_text'not in values:
             return {"status":"Failure", "message":"Missing note_text"}

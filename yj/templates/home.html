@@ -3,6 +3,8 @@
 {% block content %}
   <a href="/admin/" target="_blank"><b>Djangoadmin (admin:alpha)</b></a>
   <ul>
+    <li><a href="api/login?username=b&email=bailey.robert.a@gmail.com" target="_blank">Login</a></li>
+    <li><a href="api/logout" target="_blank">Logout</a></li>
     <li><a href="api/getUsers/" target="_blank">api/getUsers</a></li>
     <li><a href="api/getCallSummary/" target="_blank">api/getCallSummary</a></li>
     <li><a href="api/getActionItems/" target="_blank">api/getActionItems</a></li>
@@ -20,7 +22,7 @@
     </form>
 
     </li>
-    <li><a href="api/resolveActionItem/id=1" target="_blank">api/resolveActionItem/id=1</a></li>
+    <li><a href="api/resolveActionItem/1" target="_blank">api/resolveActionItem/1</a></li>
     <li><a href="api/getTickets/dateRange=2017-09-10,2017-09-15/status=pending,open" target="_blank">api/getTickets/dateRange=2017-09-10,2017-09-15/status=pending,open</a></li>
     <li><a href="api/getTicketDetailByID/1" target="_blank">api/getTicketDetailByID/1</a></li>
     <li><a href="api/getCustomerByID/1" target="_blank">api/getCustomer/1</a></li>
