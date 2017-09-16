@@ -123,8 +123,8 @@ class resolveActionItem(Resource):
         # ensure record exists and is_complete = False
         records = ActionItem.objects.filter(id=id, is_complete=False)
         if len(records) == 0:
-            return {"status":"Failure", "message":"Action item #%d either does not exist " + \
-                                                  "or has already been completed" % id}
+            return {"status":"Failure",
+                    "message":("Action item #%s either does not exist or has already been completed") % str(id)}
         records[0].is_complete = True
         records[0].save()
         return {"status":"Success", "message":"Action has been marked as completed "}
