@@ -60,12 +60,15 @@ class getActionItems(Resource):
     """ Get Action Items for logged in user / status (returns a list of due date / description / is_complete for all action items associated with the user from the JWT token) - optionally can be filtered by is_complete=true or false """
 
     @RESTfulResponse()
-    def get(self, request, is_complete=None, **kwargs):
+    def get(self, request, **kwargs):
         user_id = 1
         ai = None
-        if is_complete is not None and is_complete.lower() == "true":
+        is_complete = request.GET.get('is_complete') or ""
+        is_complete = is_complete.lower()
+
+        if is_complete == "true":
             ai = ActionItem.objects.filter(rep_id=user_id, is_complete=True)
-        elif is_complete is not None and is_complete.lower() == "false":
+        elif is_complete == "false":
             ai = ActionItem.objects.filter(rep_id=user_id, is_complete=False)
         else:
             ai = ActionItem.objects.filter(rep_id=user_id)
