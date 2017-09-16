@@ -29,15 +29,15 @@ class getUsers(Resource):
     @RESTfulResponse()
     def get(self, request, **kwargs):
         page_number = 1
-        if request.GET.get('page'):
+        if request.GET.get('page') is not None:
             page_number = request.GET.get('page')
         p = Paginator(Users.objects.all(), self.perPage)
         users = None
         try:
             users = p.page(page_number)
         except:
-            print "Error getting page %d, reverting to page 1" % page_number
-            page = 1
+            print "Error getting page %s, reverting to page 1" % str(page_number)
+            page_number = 1
             users = p.page(page_number)
 
         return { 'page_number':page_number,
@@ -59,20 +59,38 @@ class getCallSummary(Resource):
 class getActionItems(Resource):
     """ Get Action Items for logged in user / status (returns a list of due date / description / is_complete for all action items associated with the user from the JWT token) - optionally can be filtered by is_complete=true or false """
 
+    perPage = 10
+
     @RESTfulResponse()
     def get(self, request, **kwargs):
-        user_id = 1
-        ai = None
+        user_id = 3 # TODO
         is_complete = request.GET.get('is_complete') or ""
         is_complete = is_complete.lower()
 
+        page_number = 1
+        if request.GET.get('page') is not None:
+            page_number = request.GET.get('page')
+
+        ai = None
         if is_complete == "true":
             ai = ActionItem.objects.filter(rep_id=user_id, is_complete=True)
         elif is_complete == "false":
             ai = ActionItem.objects.filter(rep_id=user_id, is_complete=False)
         else:
             ai = ActionItem.objects.filter(rep_id=user_id)
-        return ai
+
+        p = Paginator(ai, self.perPage)
+        page = None
+        try:
+            page = p.page(page_number)
+        except:
+            print "Error getting page %s, reverting to page 1" % str(page_number)
+            page_number = 1
+            page = p.page(page_number)
+
+        return { 'page_number':page_number,
+                 'num_pages':p.num_pages,
+                 'data':[model_to_dict(ai) for ai in page.object_list] }
 
 
 class ActionItemForm(forms.ModelForm):
