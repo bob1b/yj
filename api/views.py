@@ -15,7 +15,6 @@ import datetime
 import json
 import pprint
 
-# TODO - login/logout calls (JWT tokens): https://jwt.io/#debugger
 # TODO - djangoadmin tweaks
 # TODO - code cleanup
 # TODO - homepage documentation
@@ -72,9 +71,6 @@ class do_logout(Resource):
         return {"status":"Success", "message":"Logged out"}
 
 
-# TODO - authenticate jwt + session id?
-# TODO - login: username + email  --> jwt token returned and stored in a table
-
 def get_rep_id(user):
     if user is None:
         return -1
@@ -94,7 +90,6 @@ def validate_jwt(request, user_id):
     return (True, {})
 
 
-# TODO - validate JWT required
 class getUsers(Resource):
     """ Get Users (return id, name, email) """
 
@@ -457,7 +452,7 @@ class addNoteToTicket(Resource):
 
         new_note_vals = { 'note_text':values['note_text'],
                           'ticket_id':values['ticket_id'],
-                          'rep_id':1, # TODO
+                          'rep_id':rep_id,
                           'created_date':datetime.datetime.now() }
         form = NoteForm(new_note_vals)
 
