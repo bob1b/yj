@@ -15,22 +15,21 @@ import datetime
 import json
 import pprint
 
-# TODO - djangoadmin tweaks
-# TODO - code cleanup
+# TODO - test page_number params via links on homepage
 # TODO - homepage documentation
 
-STATUSES =  ['pending', 'ready for approval', 'resolved', 'reopened']
+STATUSES =  ['pending', 'ready for approval', 'resolved', 'open', 'reopened']
 
 class do_login(Resource):
 
     @RESTfulResponse()
     def get(self, request, **kwargs):
+        """ api/login/?username=<username>&email=<email_address """
         try:
             username = request.GET.get('username')
             email_address = request.GET.get('email')
             print "logging in - %s:%s" % (username, email_address)
             user = User.objects.get(username=username, email=email_address)
-            pprint.pprint(user)
         except Exception as e:
             return {"status":"Failure", "message":("unable to login: %s" % str(e))}
 
@@ -63,6 +62,7 @@ class do_login(Resource):
 class do_logout(Resource):
     @RESTfulResponse()
     def get(self, request, **kwargs):
+        """ api/logout """
         try:
             logout(request)
         except Exception as e:
@@ -72,11 +72,15 @@ class do_logout(Resource):
 
 
 def get_rep_id(user):
+    """ if user is logged in, returns user_id as the rep_id """
     if user is None:
         return -1
     return user.id
 
+
 def validate_jwt(request, user_id):
+    """ pulls token from header and validates against Token table. Token and user_id must match 
+        what's in the table. Returns false plus a message on failure. Returns true if success """
     token = None
     if 'HTTP_AUTHORIZATION' not in request.META:
         return (False, {"status":"Failure", "message":"Missing JWT"})
@@ -89,9 +93,12 @@ def validate_jwt(request, user_id):
 
     return (True, {})
 
+def ValuesQuerySetToDict(vqs):
+    return [item for item in vqs]
 
 class getUsers(Resource):
-    """ Get Users (return id, name, email) """
+    """ api/getUsers/[?page=<page_num]
+             Get Users (return id, name, email) """
 
     perPage = 10
 
@@ -107,18 +114,22 @@ class getUsers(Resource):
         page_number = 1
         if request.GET.get('page') is not None:
             page_number = request.GET.get('page')
-        p = Paginator(User.objects.all(), self.perPage)
-        users = None
+
+        user_recs = User.objects.all().values('id', 'username', 'email')
+        p = Paginator(user_recs, self.perPage)
+        page = None
         try:
-            users = p.page(page_number)
+            page = p.page(page_number)
         except:
             print "Error getting page %s, reverting to page 1" % str(page_number)
             page_number = 1
-            users = p.page(page_number)
+            page = p.page(page_number)
+
+        data = ValuesQuerySetToDict(page.object_list)
 
         return { 'page_number':int(page_number),
                  'num_pages':p.num_pages,
-                 'data':[model_to_dict(u) for u in users.object_list] }
+                 'data':data }
 
 
 class getCallSummary(Resource):
@@ -133,14 +144,15 @@ class getCallSummary(Resource):
         if not valid:
             return ret_val
 
-        summ = {'pending':-1, 'ready for approval':-1, 'resolved':-1, 'reopened':-1}
-        for idx, status in enumerate(summ):
+        summ = {}
+        for status in STATUSES:
             summ[status] = len(Ticket.objects.filter(status=status))
         return summ
 
 
 class getActionItems(Resource):
-    """ Get Action Items for logged in user / status (returns a list of due date / description / is_complete for all action items associated with the user from the JWT token) - optionally can be filtered by is_complete=true or false """
+    """ api/getActionItems[?is_complete=(True|False)][?page=N]
+          Get Action Items for logged in user / status (returns a list of due date / description / is_complete for all action items associated with the user from the JWT token) - optionally can be filtered by is_complete=true or false """
 
     perPage = 10
 
@@ -156,10 +168,6 @@ class getActionItems(Resource):
         is_complete = request.GET.get('is_complete') or ""
         is_complete = is_complete.lower()
 
-        page_number = 1
-        if request.GET.get('page') is not None:
-            page_number = request.GET.get('page')
-
         ai = None
         if is_complete == "true":
             ai = ActionItem.objects.filter(rep_id=rep_id, is_complete=True)
@@ -167,6 +175,10 @@ class getActionItems(Resource):
             ai = ActionItem.objects.filter(rep_id=rep_id, is_complete=False)
         else:
             ai = ActionItem.objects.filter(rep_id=rep_id)
+
+        page_number = 1
+        if request.GET.get('page') is not None:
+            page_number = request.GET.get('page')
 
         p = Paginator(ai, self.perPage)
         page = None
@@ -188,7 +200,8 @@ class ActionItemForm(forms.ModelForm):
         fields = ['rep_id', 'description', 'due_date']
 
 class createActionItem(Resource):
-    """ Create Action Item (takes rep_id for whom the action item will be created, description, due date, autopopulates created_by with the id of the user on the JWT token """
+    """ api/createActionItem (POST vals: rep_id, description, due_date)
+         Create Action Item (takes rep_id for whom the action item will be created, description, due date, autopopulates created_by with the id of the user on the JWT token """
 
     @RESTfulResponse()
     def post(self, request):
@@ -211,7 +224,8 @@ class createActionItem(Resource):
 
 
 class resolveActionItem(Resource):
-    """ Resolve Action Item (takes item id, sets is_complete=true) """
+    """ api/resolveActionItem/(id)
+             Resolve Action Item (takes item id, sets is_complete=true) """
 
     @RESTfulResponse()
     def get(self, request, id):
@@ -233,7 +247,11 @@ class resolveActionItem(Resource):
 
 
 class getTickets(Resource):
-    """ Get Tickets (optional date range filter, optional status filter that can contain one or multiple statuses, if filter not supplied return all), returns all ticket fields, paged """
+    """ api/getTickets/[dateRange]/[is_complete]
+         dateRange = [start YYYY-MM-DD],[end YYYY-MM-DD]
+         status = (comma-delimited list of statuses:  pending,ready for approval,resolved,open',reopened'
+
+          Get Tickets (optional date range filter, optional status filter that can contain one or multiple statuses, if filter not supplied return all), returns all ticket fields, paged """
 
     perPage = 10
 
@@ -277,8 +295,6 @@ class getTickets(Resource):
                 tickets = tickets.filter(created_date__lte=dateEnd)
 
         if status is not None:
-            print "status: %s" % status
-            pprint.pprint(status.split(','))
             tickets = tickets.filter(status__in=status.split(','))
 
         p = Paginator(tickets, self.perPage)
@@ -298,7 +314,19 @@ class getTickets(Resource):
 
 
 class getTicketDetailByID(Resource):
-    """ Get Ticket Detail by ID (returns ticket detail (ticket id, customer id, contact name, contact phone, rep id & rep name, subject, details, open date, resolved date, status) + all notes (id, datetime, rep name & id, text) for the ticket -- no pagination on the notes) """
+    """ api/getTicketDetailByID/(ID)
+           Get Ticket Detail by ID (returns ticket detail (ticket id, customer id, contact name, contact phone, rep id & rep name, subject, details, open date, resolved date, status) + all notes (id, datetime, rep name & id, text) for the ticket -- no pagination on the notes) """
+
+    rep_records = None
+
+    def rep_id_to_name(self, rep_id):
+        if self.rep_records is None:
+            self.rep_records = User.objects.values('id', 'username')
+        
+        for rep in self.rep_records:
+            if rep['id'] == rep_id:
+                return rep['username']
+        return '???'
 
     @RESTfulResponse()
     def get(self, request, id=None, **kwargs):
@@ -312,22 +340,28 @@ class getTicketDetailByID(Resource):
         if id is None:
             return {"status":"Failure", "message":"Ticket id is required"}
 
+
         records = Ticket.objects.filter(id=id)
         if len(records) == 0:
             return {"status":"Failure", "message":"No ticket with that ID"}
 
         ticket = model_to_dict(records.get())
+        ticket['rep_name'] = self.rep_id_to_name(ticket['rep_id'])
+        print ticket['rep_name']
 
         notes = Note.objects.filter(ticket_id=id)
         ticket['notes'] = []
         for note in notes:
-            ticket['notes'].append(model_to_dict(note))
+            n = model_to_dict(note)
+            n['rep_name'] = self.rep_id_to_name(n['rep_id'])
+            ticket['notes'].append(n)
 
         return ticket
 
 
 class getCustomerByID(Resource):
-    """ Get Customer by ID (returns Customer ID, Customer Name, Phone number) """
+    """ api/getCustomerByID/(id)
+           Get Customer by ID (returns Customer ID, Customer Name, Phone number) """
 
     @RESTfulResponse()
     def get(self, request, id=None, **kwargs):
@@ -352,11 +386,12 @@ class getCustomerByID(Resource):
 class TicketForm(forms.ModelForm):
     class Meta:
         model = Ticket
-        fields = ['rep_id', 'status', 'created_date', 'last_modified_date', 'resolved_date', \
+        fields = ['rep_id', 'status', 'created_date', 'resolved_date', \
                   'customer_id', 'contact_name', 'contact_phone', 'subject', 'details']
 
 class addTicket(Resource):
-    """ Add Ticket (takes customer id, contact name, contact phone, subject, details, autopopulate datetime & rep id from the JWT logged in user) """
+    """ api/addTicket (POST vals below)
+           Add Ticket (takes customer id, contact name, contact phone, subject, details, autopopulate datetime & rep id from the JWT logged in user) """
 
     @RESTfulResponse()
     def post(self, request):
@@ -371,7 +406,7 @@ class addTicket(Resource):
         values['rep_id'] = rep_id
         values['status'] ="pending"
         values['created_date'] = datetime.datetime.now()
-        values['last_modified_date'] = datetime.datetime.now()
+        values['last_modified_date'] = ""
         values['resolved_date'] = ""
         form = TicketForm(values)
 
@@ -384,7 +419,8 @@ class addTicket(Resource):
 
 
 class updateTicketStatus(Resource):
-    """ Update Ticket Status (takes ticket ID, new status - autopopulate lastmod time) """
+    """ api/updateTicketStatus/(id)/(new_status)
+           Update Ticket Status (takes ticket ID, new status - autopopulate lastmod time) """
 
     @RESTfulResponse()
     def get(self, request, id=None, new_status=None, **kwargs):
@@ -431,6 +467,8 @@ class addNoteToTicket(Resource):
 
     @RESTfulResponse()
     def post(self, request):
+        """ api/addNoteToTicket/  (post vals:  ticket_id, note_text)
+              Add Note To Ticket (takes ticket id, note text - autopopulate datetime & rep id from the JWT logged in user) """
         rep_id = get_rep_id(request.user)
         if rep_id < 0:
             return {"status":"Access denied", "message":"User must log in"}

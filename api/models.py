@@ -13,7 +13,7 @@ class Ticket(models.Model):
     rep_id = models.IntegerField() # (FK to Users)
     created_date = models.DateTimeField() # (set during ticket creation)
     resolved_date = models.DateTimeField(blank=True, null=True, default=None) # (should be populated when status is set to 'Resolved')
-    last_modified_date = models.DateTimeField() # (autoupdate)
+    last_modified_date = models.DateTimeField(blank=True, null=True, default=None) # (autoupdate)
     subject = models.CharField(max_length=200)
     details = models.CharField(max_length=500)
     status = models.CharField(max_length=30) # (set to 'pending' for new tickets, possible values are pending, ready for approval, resolved, reopened)
