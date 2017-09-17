@@ -79,7 +79,7 @@
           $.ajax({
               dataType:'json',
               url: url,
-             headers: {"Authorization": getJWT()}
+              headers: {"Authorization": getJWT()}
           }).done( function(data){
             $("#returnVal").val( JSON.stringify(data) );
             if (url.substring(0, 9) === "api/login"){
@@ -102,6 +102,7 @@
         $.ajax({
             method:'POST',
             dataType:'json',
+            data:data,
             url: url,
            headers: {"Authorization": getJWT()}
         }).done( function(data){
