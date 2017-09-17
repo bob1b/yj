@@ -15,9 +15,6 @@ import datetime
 import json
 import pprint
 
-# TODO - test page_number params via links on homepage
-# TODO - homepage documentation
-
 STATUSES =  ['pending', 'ready for approval', 'resolved', 'open', 'reopened']
 
 class do_login(Resource):
