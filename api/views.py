@@ -9,14 +9,13 @@ from django.contrib.auth.models import User
 import python_jwt as jwt
 import Crypto.PublicKey.RSA as RSA
 from simple_rest import Resource
-from .models import Customer, Ticket, Note, ActionItem, Token, Users
+from .models import Customer, Ticket, Note, ActionItem, Token
 from simple_rest.response import RESTfulResponse
 import datetime
 import json
 import pprint
 
 # TODO - login/logout calls (JWT tokens): https://jwt.io/#debugger
-# TODO - use User table instead of Userss
 # TODO - djangoadmin tweaks
 # TODO - code cleanup
 # TODO - homepage documentation
@@ -113,7 +112,7 @@ class getUsers(Resource):
         page_number = 1
         if request.GET.get('page') is not None:
             page_number = request.GET.get('page')
-        p = Paginator(Users.objects.all(), self.perPage)
+        p = Paginator(User.objects.all(), self.perPage)
         users = None
         try:
             users = p.page(page_number)

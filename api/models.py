@@ -33,11 +33,6 @@ class ActionItem(models.Model):
     due_date = models.DateTimeField()
     is_complete = models.BooleanField(default=False)
 
-class Users(models.Model):
-    id = models.AutoField(primary_key=True) # (PK)
-    name = models.CharField(max_length=100)
-    email_address = models.CharField(max_length=100)
-
 class Token(models.Model):
     id = models.AutoField(primary_key=True) # (PK)
     user_id = models.IntegerField()
