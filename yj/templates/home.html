@@ -5,53 +5,197 @@
   <div class="container">
     <div class="left">
       <h3>Test links</h3>
-      <a href="/admin/" target="_blank"><b>Djangoadmin (admin:alpha)</b></a>
+      <a href="/admin/" target="_blank"><h3>Djangoadmin (admin:alpha)</h3></a>
       <ul class="api_test_links">
-        <li><a href="api/login?username=b&email=bailey.robert.a@gmail.com" target="_blank">Login</a></li>
-        <li><a href="api/logout" target="_blank">Logout</a></li>
-        <li><a href="api/getUsers/" target="_blank">api/getUsers</a></li>
-        <li><a href="api/getCallSummary/" target="_blank">api/getCallSummary</a></li>
-        <li><a href="api/getActionItems/" target="_blank">api/getActionItems</a></li>
-        <li><a href="api/getActionItems/?is_complete=True" target="_blank">api/getActionItems/?is_complete=True</a></li>
-        <li><a href="api/getActionItems/?is_complete=False" target="_blank">api/getActionItems/?is_complete=False</a></li>
+
         <li>
-
-        <form method="post" action="api/createActionItem" class="inline" target="_blank">
-          <input type="hidden" name="rep_id" value="3">
-          <input type="hidden" name="description" value="description">
-          <input type="hidden" name="due_date" value="01/01/1970">
-          <button type="submit" name="submit_param" value="submit_value" class="link-button">
-            api/createActionItem (post)
-          </button>
-        </form>
-
+          <h3>Login</h3>
+          <a href_base="api/login?username=%username&email=%email" href="#" target="_blank">(api/login)</a>
+          <ul>
+             <li>
+							<label>username <input type="text" name="username" value="b"></label>
+             </li>
+             <li>
+							<label>email <input type="text" name="email" value="bailey.robert.a@gmail.com"></label>
+             </li>
+          </ul>
         </li>
-        <li><a href="api/resolveActionItem/1" target="_blank">api/resolveActionItem/1</a></li>
-        <li><a href="api/getTickets/dateRange=2017-09-10,2017-09-15/status=pending,open" target="_blank">api/getTickets/dateRange=2017-09-10,2017-09-15/status=pending,open</a></li>
-        <li><a href="api/getTicketDetailByID/1" target="_blank">api/getTicketDetailByID/1</a></li>
-        <li><a href="api/getCustomerByID/1" target="_blank">api/getCustomer/1</a></li>
+
         <li>
+          <h3>Logout</h3>
+          <a href="api/logout" target="_blank">api/logout</a>
+        </li>
+
+        <li>
+          <h3>getUsers</h3>
+          <a href="api/getUsers/" target="_blank">api/getUsers</a>
+        </li>
+
+        <li>
+          <h3>getUsers?page=n</h3>
+          <a href_base="api/getUsers?page=%page" href="#" target="_blank">api/getUsers</a>
+          <ul>
+            <li>
+							<label>page <input type="text" name="page" value="1" class="narrow"></label>
+            </li>
+          </ul>
+        </li>
+
+        <li><h3>getCallSummary</h3>
+            <a href="api/getCallSummary/" target="_blank">api/getCallSummary</a></li>
+
+        <li><h3>getActionItems</h3>
+            <a href="api/getActionItems/" target="_blank">api/getActionItems</a></li>
+
+        <li>
+            <h3>getActionItems?page=n</h3>
+            <a href_base="api/getActionItems?page=%page" href="#" target="_blank">api/getActionItems</a>
+						<ul>
+							<li>
+								<label>page <input type="text" name="page" value="1" class="narrow"></label>
+							</li>
+            </ul>
+        </li>
+
+        <li>
+           <h3>getActionItems?is_complete=...</h3>
+           <a href_base="api/getActionItems/?is_complete=%trueFalse" href="#" target="_blank">api/getActionItems/</a>
+						<ul>
+							<li>
+								<label>true/false <input type="text" name="trueFalse" value="True"></label>
+              </li>
+            </ul>
+        </li>
+
+        <li><h3>createActionItem</h3>
+					<form method="post" action="api/createActionItem" class="inline" target="_blank">
+						<button type="submit" name="submit_param" value="submit_value" class="link-button">
+							api/createActionItem (post)
+						</button>
+						<ul>
+							<li>
+								<label>rep_id <input type="text" name="rep_id" value="3" class="narrow"></label>
+							</li>
+							<li>
+								<label>description <input type="text" name="description" value="description" class="wide"></label>
+							</li>
+							<li>
+								<label>due date <input type="date" name="due_date" value="01/01/1970"></label>
+							</li>
+						</ul>
+					</form>
+        </li>
+
+        <li><h3>resolveActionItem/(id)</h3>
+            <a href_base="api/resolveActionItem/%id" href="#" target="_blank">api/resolveActionItem/</a>
+						<ul>
+							<li>
+								<label>id <input type="text" name="id" value="1" class="narrow"></label>
+							</li>
+            </ul>
+        </li>
+
+        <li><h3>getTickets</h3>
+            <a href_base="api/getTickets/?page=%page" href="#"
+               target="_blank">api/getTickets</a>
+						<ul>
+							<li>
+								<label>page <input type="text" name="page" class="narrow"
+                             value="1"></label>
+              </li>
+            </ul>
+				</li>
+
+        <li><h3>getTickets</h3>
+            <a href_base="api/getTickets/?dateRange=%dateRange&status=%status&page=%page" href="#"
+               target="_blank">api/getTickets</a>
+						<ul>
+							<li>
+								<label>dateRange <input type="text" name="dateRange" value="2017-09-10,2017-09-15"></label>
+							</li>
+							<li>
+								<label>status <input type="text" name="status"
+                             value="pending,ready for approval,resolved,open,reopened" class="wide"></label>
+              </li>
+							<li>
+								<label>page <input type="text" name="page" class="narrow"
+                             value="1"></label>
+              </li>
+            </ul>
+				</li>
+
+        <li><h3>getTicketDetailByID</h3>
+            <a href_base="api/getTicketDetailByID/%id" href="#" target="_blank">api/getTicketDetailByID/</a>
+						<ul>
+							<li>
+								<label>id <input type="text" name="id" value="1" class="narrow"></label>
+              </li>
+            </ul>
+        </li>
+
+        <li><h3>getCustomerByID</h3>
+            <a href_base="api/getCustomerByID/%id" href="#" target="_blank">api/getCustomerByID/</a>
+						<ul>
+							<li>
+								<label>id <input type="text" name="id" value="1" class="narrow"></label>
+              </li>
+            </ul>
+        </li>
+
+        <li><h3>addTicket</h3>
           <form method="post" action="api/addTicket" class="inline" target="_blank">
-            <input type="hidden" name="customer_id" value="1">
-            <input type="hidden" name="contact_name" value="Dr. Something">
-            <input type="hidden" name="contact_phone" value="111-111-1111">
-            <input type="hidden" name="subject" value="subject stuff here">
-            <input type="hidden" name="details" value="details stuff here">
             <button type="submit" name="submit_param" value="submit_value" class="link-button">
               api/addTicket (post)
             </button>
+            <ul>
+              <li>
+								<label>customer_id <input type="text" name="customer_id" value="1" class="narrow"></label>
+              </li>
+              <li>
+								<label>contact_name <input type="text" name="contact_name" value="Dr. Something"></label>
+              </li>
+              <li>
+								<label>contact_phone <input type="text" name="contact_phone" value="111-111-1111"></label>
+              </li>
+              <li>
+								<label>subject <input type="text" name="subject" value="subject stuff here" class="wide"></label>
+              </li>
+              <li>
+								<label>details <input type="text" name="details" value="details stuff here" class="wide"></label>
+              </li>
+            </ul>
           </form>
         </li>
-        <li><a href="api/updateTicketStatus/1/resolved" target="_blank">api/updateTicketStatus/1/resolved</a></li>
-        <li>
+
+        <li><h3>updateTicketStatus</h3>
+            <a href_base="api/updateTicketStatus/%id/%status" href="#"
+               target="_blank">api/updateTicketStatus/</a>
+            <ul>
+              <li>
+								<label>id <input type="text" name="id" value="1" class="narrow"></label>
+              </li>
+              <li>
+								<label>status <input type="text" name="status" value="reopened"></label>
+              </li>
+            </ul>
+        </li>
+
+        <li><h3>addNoteToTicket</h3>
           <form method="post" action="api/addNoteToTicket" class="inline" target="_blank">
-            <input type="hidden" name="note_text" value="note text here">
-            <input type="hidden" name="ticket_id" value="1">
             <button type="submit" name="submit_param" value="submit_value" class="link-button">
               api/addNoteToTicket/ (post)
             </button>
+            <ul>
+              <li>
+								<label>note_text <input type="text" name="note_text" value="note text here" class="wide"></label>
+              </li>
+              <li>
+								<label>ticket_id <input type="text" name="ticket_id" value="1" class="narrow"></label>
+              </li>
+            </ul>
           </form>
         </li>
+
       </ul>
     </div> <!-- left -->
 
@@ -70,10 +214,37 @@
       return $("#jwt").val();
     }
 
+    function reload_link_href( el ){
+        var link_el = $(el).find("a");
+        var href_base = $(link_el).attr("href_base");
+        if (typeof(href_base) !== "undefined"){
+					var new_href = href_base;
+					$(el).find("input").each( function(){
+						 var name = $(this).attr("name");
+						 var val = $(this).val();
+						 if (typeof(name) !== "undefined"){
+							 new_href = new_href.replace('%'+name, val);
+						 }
+					});
+					if (new_href !== href_base){
+						$(link_el).attr('href', new_href);
+						$(link_el).html(new_href);
+					}
+				}
+    }
+
+
     $( document ).ready(function() {
+
+      $(".api_test_links li").each( function(){
+				reload_link_href( this );
+        var _that = this;
+        $(this).find('input').change( function(){ reload_link_href(_that) } );
+      })
+
       $("ul.api_test_links li a").each(function(){
-        var url = $(this).attr('href');
         $(this).click( function(e){
+					var url = $(this).attr('href');
           $("#returnVal").val('');
 
           $.ajax({

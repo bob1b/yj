@@ -273,6 +273,7 @@ class getTickets(Resource):
         if request.GET.get('page') is not None:
             page_number = request.GET.get('page')
 
+        dateRange = request.GET.get('dateRange')
         if dateRange is not None:
             dates = str(dateRange).split(',')
             dateStart = None
@@ -288,12 +289,12 @@ class getTickets(Resource):
             if dateEnd == "":
                 dateEnd = None
 
-            print "date range: %s to %s" % (dateStart, dateEnd)
             if dateStart:
                 tickets = tickets.filter(created_date__gte=dateStart)
             if dateEnd:
                 tickets = tickets.filter(created_date__lte=dateEnd)
 
+        status = request.GET.get('status')
         if status is not None:
             tickets = tickets.filter(status__in=status.split(','))
 
